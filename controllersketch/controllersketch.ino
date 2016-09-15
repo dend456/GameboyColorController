@@ -1,11 +1,11 @@
-const byte BUTTON_LEFT = 5;
-const byte BUTTON_UP = 9;
-const byte BUTTON_RIGHT = 8;
-const byte BUTTON_DOWN = 6;
-const byte BUTTON_SELECT = 7;
-const byte BUTTON_START = 12;
-const byte BUTTON_A = 11;
-const byte BUTTON_B = 10;
+const byte BUTTON_LEFT = 12;
+const byte BUTTON_DOWN = 11;
+const byte BUTTON_SELECT = 10;
+const byte BUTTON_RIGHT = 9;
+const byte BUTTON_UP = 8;
+const byte BUTTON_B = 7;
+const byte BUTTON_A = 6;
+const byte BUTTON_START = 5;
 
 bool recordMode = false;
 byte buttons = 0;
@@ -45,11 +45,11 @@ void record()
   }
 
   byte newButtons = 0;
-  for(byte pin=BUTTON_LEFT; pin <= BUTTON_START; ++pin)
+  for(byte pin=BUTTON_START; pin <= BUTTON_LEFT; ++pin)
   {
     if(digitalRead(pin) == LOW)
     {
-      newButtons |= 1 << (pin - BUTTON_LEFT);
+      newButtons |= 1 << (pin - BUTTON_START);
     }
   }
 
@@ -72,7 +72,7 @@ void playback()
     return;
   }
   
-  for(int pin=BUTTON_START; pin >= BUTTON_LEFT; --pin, buttons >>= 1)
+  for(int pin=BUTTON_LEFT; pin >= BUTTON_START; --pin, buttons >>= 1)
   {
     if(buttons & 1)
     {

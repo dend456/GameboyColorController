@@ -9,14 +9,14 @@ from .controller import GBCController
 
 class GBC:
     class Buttons:
-        left = 0b10000000
-        down = 0b01000000
-        select = 0b00100000
-        right = 0b00010000
-        up = 0b00001000
-        b = 0b00000100
-        a = 0b00000010
-        start = 0b00000001
+        left = 0b00000001
+        down = 0b00000010
+        select = 0b00000100
+        right = 0b00001000
+        up = 0b00010000
+        b = 0b00100000
+        a = 0b01000000
+        start = 0b10000000
         none = 0b00000000
         record = 0b11111111
         reset = start | select | a | b
