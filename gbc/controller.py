@@ -127,7 +127,7 @@ class GBCController(tk.Frame):
             self.recorder = None
             self.record.configure(foreground='black')
         elif self.system.ser:
-            file = tk.filedialog.asksaveasfilename(filetypes=(('Replay', '*.rep'),))
+            file = tk.filedialog.asksaveasfilename(filetypes=(('Replay', '*.rep'),), defaultextension='.rep')
             if file:
                 self.recorder = Recorder(file, self.system.ser)
                 self.record.configure(foreground='red')
@@ -141,7 +141,7 @@ class GBCController(tk.Frame):
             for k, b in self.keymap.items():
                     b[0].configure(background='white')
         elif self.system.ser:
-            file = tk.filedialog.asksaveasfilename(filetypes=(('Replay', '*.rep'),))
+            file = tk.filedialog.askopenfilename(filetypes=(('Replay', '*.rep'),))
             if file:
                 self.replayer = Replayer(file, self.system.ser, button_callback=self.__replay_button_callback, finish_callback=self.__replay_finish_callback)
                 self.replay.configure(text='Stop')
