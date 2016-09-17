@@ -8,20 +8,7 @@ from .controller import GBCController
 
 
 class GBC:
-    class Buttons:
-        left = 0b00000001
-        down = 0b00000010
-        select = 0b00000100
-        right = 0b00001000
-        up = 0b00010000
-        b = 0b00100000
-        a = 0b01000000
-        start = 0b10000000
-        none = 0b00000000
-        record = 0b11111111
-        reset = start | select | a | b
-
-    def __init__(self, port='COM4', baud=9600):
+    def __init__(self, port='COM4', baud=19200):
         self.baud = baud
         self.ports = list(serial.tools.list_ports.comports())
         self.root = tk.Tk()
@@ -44,7 +31,7 @@ class GBC:
 
         if self.default_port and self.default_port in [x[0] for x in self.ports]:
             self.ports_box.set(self.default_port)
-            self.ser = serial.Serial(self.ports_box.get(), baudrate=self.baud, timeout=.1)
+            self.ser = serial.Serial(self.ports_box.get(), baudrate=self.baud, timeout=0)
 
     def __refresh_ports(self):
         self.ports = list(serial.tools.list_ports.comports())

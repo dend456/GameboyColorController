@@ -4,9 +4,33 @@ import tkinter as tk
 from tkinter import filedialog
 import time
 from threading import Thread
-from . import gbc
 from .recorder import Recorder
 from .replay import Replayer
+
+
+class Buttons:
+    left = 0b00000001
+    down = 0b00000010
+    select = 0b00000100
+    right = 0b00001000
+    up = 0b00010000
+    b = 0b00100000
+    a = 0b01000000
+    start = 0b10000000
+    none = 0b00000000
+    reset = start | select | a | b
+    
+    
+class Mode:
+    freeplay = 0b00000001
+    record = 0b00000010
+    replay = 0b00000011
+
+
+class Signal:
+    change_mode = 0b11111111
+    send_byte = change_mode ^ Buttons.left
+    finished_replay = change_mode ^ Buttons.right
 
 
 class GBCController(tk.Frame):
@@ -17,14 +41,15 @@ class GBCController(tk.Frame):
         self.buttons = 0
         self.recorder = None
         self.replayer = None
-        self.keymap = {'a': (self.left, gbc.GBC.Buttons.left),
-                       'w': (self.up, gbc.GBC.Buttons.up),
-                       'd': (self.right, gbc.GBC.Buttons.right),
-                       's': (self.down, gbc.GBC.Buttons.down),
-                       'k': (self.b, gbc.GBC.Buttons.b),
-                       'l': (self.a, gbc.GBC.Buttons.a),
-                       'n': (self.select, gbc.GBC.Buttons.select),
-                       'm': (self.start, gbc.GBC.Buttons.start)}
+        self.mode = Mode.freeplay
+        self.keymap = {'a': (self.left, Buttons.left),
+                       'w': (self.up, Buttons.up),
+                       'd': (self.right, Buttons.right),
+                       's': (self.down, Buttons.down),
+                       'k': (self.b, Buttons.b),
+                       'l': (self.a, Buttons.a),
+                       'n': (self.select, Buttons.select),
+                       'm': (self.start, Buttons.start)}
 
     def __setup_ui(self):
         dpad_panel = tk.Frame(self.root)
@@ -43,24 +68,24 @@ class GBCController(tk.Frame):
         self.select = tk.Button(ss_panel, text='Select')
         self.start = tk.Button(ss_panel, text='Start')
 
-        self.left.bind('<ButtonPress-1>', lambda e: self.__button_press(gbc.GBC.Buttons.left))
-        self.left.bind('<ButtonRelease-1>', lambda e: self.__button_release(gbc.GBC.Buttons.left))
-        self.up.bind('<ButtonPress-1>', lambda e: self.__button_press(gbc.GBC.Buttons.up))
-        self.up.bind('<ButtonRelease-1>', lambda e: self.__button_release(gbc.GBC.Buttons.up))
-        self.down.bind('<ButtonPress-1>', lambda e: self.__button_press(gbc.GBC.Buttons.down))
-        self.down.bind('<ButtonRelease-1>', lambda e: self.__button_release(gbc.GBC.Buttons.down))
-        self.right.bind('<ButtonPress-1>', lambda e: self.__button_press(gbc.GBC.Buttons.right))
-        self.right.bind('<ButtonRelease-1>', lambda e: self.__button_release(gbc.GBC.Buttons.right))
+        self.left.bind('<ButtonPress-1>', lambda e: self.__button_press(Buttons.left))
+        self.left.bind('<ButtonRelease-1>', lambda e: self.__button_release(Buttons.left))
+        self.up.bind('<ButtonPress-1>', lambda e: self.__button_press(Buttons.up))
+        self.up.bind('<ButtonRelease-1>', lambda e: self.__button_release(Buttons.up))
+        self.down.bind('<ButtonPress-1>', lambda e: self.__button_press(Buttons.down))
+        self.down.bind('<ButtonRelease-1>', lambda e: self.__button_release(Buttons.down))
+        self.right.bind('<ButtonPress-1>', lambda e: self.__button_press(Buttons.right))
+        self.right.bind('<ButtonRelease-1>', lambda e: self.__button_release(Buttons.right))
 
-        self.b.bind('<ButtonPress-1>', lambda e: self.__button_press(gbc.GBC.Buttons.b))
-        self.b.bind('<ButtonRelease-1>', lambda e: self.__button_release(gbc.GBC.Buttons.b))
-        self.a.bind('<ButtonPress-1>', lambda e: self.__button_press(gbc.GBC.Buttons.a))
-        self.a.bind('<ButtonRelease-1>', lambda e: self.__button_release(gbc.GBC.Buttons.a))
+        self.b.bind('<ButtonPress-1>', lambda e: self.__button_press(Buttons.b))
+        self.b.bind('<ButtonRelease-1>', lambda e: self.__button_release(Buttons.b))
+        self.a.bind('<ButtonPress-1>', lambda e: self.__button_press(Buttons.a))
+        self.a.bind('<ButtonRelease-1>', lambda e: self.__button_release(Buttons.a))
 
-        self.select.bind('<ButtonPress-1>', lambda e: self.__button_press(gbc.GBC.Buttons.select))
-        self.select.bind('<ButtonRelease-1>', lambda e: self.__button_release(gbc.GBC.Buttons.select))
-        self.start.bind('<ButtonPress-1>', lambda e: self.__button_press(gbc.GBC.Buttons.start))
-        self.start.bind('<ButtonRelease-1>', lambda e: self.__button_release(gbc.GBC.Buttons.start))
+        self.select.bind('<ButtonPress-1>', lambda e: self.__button_press(Buttons.select))
+        self.select.bind('<ButtonRelease-1>', lambda e: self.__button_release(Buttons.select))
+        self.start.bind('<ButtonPress-1>', lambda e: self.__button_press(Buttons.start))
+        self.start.bind('<ButtonRelease-1>', lambda e: self.__button_release(Buttons.start))
 
         self.root.bind('<Key>', self.__keypress)
         self.root.bind('<KeyRelease>', self.__keypress)
@@ -117,9 +142,9 @@ class GBCController(tk.Frame):
         for k, button in self.keymap.items():
             button[0].configure(background='white')
         if self.system.ser:
-            self.system.ser.write(bytes([gbc.GBC.Buttons.reset]))
+            self.system.ser.write(bytes([Buttons.reset]))
             time.sleep(.1)
-            self.system.ser.write(bytes([gbc.GBC.Buttons.none]))
+            self.system.ser.write(bytes([Buttons.none]))
 
     def __record_pressed(self):
         if self.recorder:

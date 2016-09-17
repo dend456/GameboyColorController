@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
-import time
-from . import gbc
+from . import controller
 
 
 class Recorder:
@@ -16,16 +15,14 @@ class Recorder:
     def run(self):
         with open(self.file, 'wb') as out:
             self.running = True
-            start_time = None
-            self.serial.write(bytes([gbc.GBC.Buttons.record]))
+            self.serial.reset_input_buffer()
+            self.serial.write(bytes([controller.Signal.change_mode, controller.Mode.record]))
             while self.running:
                 inp = self.serial.read()
                 if len(inp) == 0:
                     continue
                 buttons = int.from_bytes(inp, byteorder='big')
-                if not start_time:
-                    start_time = time.perf_counter()
-                t = time.perf_counter() - start_time
-                buttons_text = bytes('{:08b} {}'.format(buttons, t), 'utf-8')
+
+                buttons_text = bytes('{:08b}'.format(buttons), 'utf-8')
                 out.write(b'%s\n' % buttons_text)
-            self.serial.write(bytes([gbc.GBC.Buttons.record]))
+            self.serial.write(bytes([controller.Signal.change_mode, controller.Mode.freeplay]))
